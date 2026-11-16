@@ -1,0 +1,580 @@
+/* ==========================================================
+   رفيق المبرمج — styles
+
+   1. Colors and shadows (light + dark)    6. Cards and links
+   2. Page basics                           7. Sign-in card
+   3. Header and navigation                 8. Learning resources
+   4. Buttons                               9. Weekly schedule
+   5. Form fields                          10. Toast and footer
+   ========================================================== */
+
+
+/* ---------- 1. Colors and shadows ---------- */
+
+:root {
+  --bg: #f4f6f8;
+  --card: #fff;
+  --text: #1b2b3a;
+  --muted: #5b6977;
+  --line: #dde4ea;
+  --header: #1f3a52;
+  --accent: #2f7772;
+  --on-accent: #fff;
+  --accent-soft: #e2f0ee;
+  --bar: #e8edf1;
+  --error: #b3261e;
+  --ok: #1b7f4b;
+  --amber: #8a5a00;
+  --shadow: 0 1px 2px rgba(16, 24, 40, .06), 0 6px 16px rgba(16, 24, 40, .05);
+
+  /* Keep content clear of the phone's status bar and home indicator */
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Dark mode: follows the device setting */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10181f;
+    --card: #18232c;
+    --text: #e8eef3;
+    --muted: #9fb0be;
+    --line: #2b3a47;
+    --header: #0c1319;
+    --accent: #5fb3ad;
+    --on-accent: #0c1319;
+    --accent-soft: #1a3331;
+    --bar: #223039;
+    --error: #ff9a92;
+    --ok: #6fcf97;
+    --amber: #f2c35b;
+    --shadow: none;
+  }
+}
+
+/* Dark mode forced on (same values as above) */
+:root[data-theme="dark"] {
+  --bg: #10181f;
+  --card: #18232c;
+  --text: #e8eef3;
+  --muted: #9fb0be;
+  --line: #2b3a47;
+  --header: #0c1319;
+  --accent: #5fb3ad;
+  --on-accent: #0c1319;
+  --accent-soft: #1a3331;
+  --bar: #223039;
+  --error: #ff9a92;
+  --ok: #6fcf97;
+  --amber: #f2c35b;
+  --shadow: none;
+}
+
+
+/* ---------- 2. Page basics ---------- */
+
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+*, *::before, *::after { box-sizing: inherit; }
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 400 16px/1.7 Cairo, Tahoma, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Colors the strip behind the phone's status bar */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  background: var(--header);
+  z-index: 10;
+}
+
+main { max-width: 1000px; margin: 0 auto; padding: 20px 16px 8px; }
+h2 { font-size: 1.35rem; margin: 0; line-height: 1.4; }
+h3 { font-size: 1rem; margin: 16px 0 6px; }
+.muted { color: var(--muted); font-size: .88rem; }
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid #6cc7bd;
+  outline-offset: 2px;
+}
+
+
+/* ---------- 3. Header and navigation ---------- */
+
+header {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 11;
+  background: var(--header);
+  color: #fff;
+}
+
+.header-inner { max-width: 1000px; margin: 0 auto; padding: 8px 16px 0; }
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 8px;
+}
+
+.brand { font-weight: 700; font-size: 1.15rem; line-height: 1.3; }
+.brand small { display: block; font-weight: 400; font-size: .75rem; opacity: .8; }
+
+#user-box { display: flex; align-items: center; gap: 10px; font-size: .85rem; }
+
+nav { display: flex; }
+
+nav a {
+  flex: 1;
+  max-width: 200px;
+  text-align: center;
+  color: #fff;
+  text-decoration: none;
+  padding: 9px 12px;
+  border-bottom: 3px solid transparent;
+  font-weight: 600;
+  font-size: .92rem;
+  opacity: .7;
+}
+
+nav a[aria-current="page"] { opacity: 1; border-color: #7fd6cd; }
+
+
+/* ---------- 4. Buttons ---------- */
+
+.btn-primary,
+.btn-secondary {
+  min-height: 44px;
+  padding: 8px 20px;
+  border-radius: 10px;
+  font: 600 .95rem Cairo, Tahoma, sans-serif;
+  cursor: pointer;
+}
+
+.btn-primary { background: var(--accent); color: var(--on-accent); border: 0; }
+.btn-secondary { background: none; color: var(--text); border: 1px solid var(--line); }
+
+/* Small outlined button on the dark header */
+.btn-ghost {
+  background: none;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, .45);
+  border-radius: 8px;
+  padding: 4px 12px;
+  font: inherit;
+  font-size: .82rem;
+  cursor: pointer;
+}
+
+/* Text-only button */
+.btn-link {
+  background: none;
+  border: 0;
+  color: var(--accent);
+  font: 600 .85rem Cairo, Tahoma, sans-serif;
+  cursor: pointer;
+  padding: 4px 0;
+  min-height: 32px;
+}
+
+/* Previous / next week arrows */
+.btn-nav {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--text);
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+/* The small × that deletes a schedule entry */
+.btn-delete {
+  flex: none;
+  align-self: flex-start;
+  background: none;
+  border: 0;
+  color: var(--muted);
+  font: inherit;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0 6px;
+  border-radius: 6px;
+}
+
+/* Rounded option buttons (majors, levels, breadcrumbs) */
+.chip {
+  font: 600 .9rem Cairo, Tahoma, sans-serif;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  min-height: 40px;
+  padding: 6px 16px;
+  cursor: pointer;
+}
+
+.chip.big { padding: 8px 22px; min-height: 44px; }
+.chip.current { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+.chip:disabled { opacity: .45; cursor: default; }
+
+
+/* ---------- 5. Form fields ---------- */
+
+input,
+select {
+  font: inherit;
+  font-size: 1rem;
+  min-height: 44px;
+  min-width: 0;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 8px 12px;
+}
+
+input[aria-invalid="true"] { border-color: var(--error); }
+
+.field { margin-top: 14px; }
+.field label { display: block; font-weight: 600; font-size: .9rem; }
+.field input,
+.field select { display: block; width: 100%; margin-top: 6px; }
+
+.field-error { font-size: .82rem; color: var(--error); margin: 4px 0 0; }
+.field-error:empty { display: none; }
+.form-error { color: var(--error); font-size: .88rem; margin: 12px 0 0; }
+.form-error:empty { display: none; }
+.hint { font-size: .8rem; color: var(--muted); margin: 4px 0 0; }
+
+/* Password box with the show/hide button inside it */
+.password-wrap { position: relative; margin-top: 6px; }
+.password-wrap input { margin: 0; padding-right: 76px; }
+
+.toggle-password {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  height: 32px;
+  padding: 0 10px;
+  background: none;
+  border: 0;
+  color: var(--accent);
+  font: 600 .82rem Cairo, Tahoma, sans-serif;
+  cursor: pointer;
+}
+
+
+/* ---------- 6. Cards and links ---------- */
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow);
+}
+
+.card h3:first-child { margin-top: 0; }
+
+.card-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  margin-top: 12px;
+}
+
+.page-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 6px; }
+.page-head p { margin: 2px 0 0; }
+
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+.flush { margin-top: 0; }
+
+.tag {
+  flex: none;
+  font-size: .75rem;
+  font-weight: 600;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: 99px;
+  padding: 1px 10px;
+}
+
+.pill {
+  display: inline-block;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: 99px;
+  padding: 1px 12px;
+  font-size: .78rem;
+  font-weight: 600;
+}
+
+/* A box that says "nothing here yet" */
+.empty-state {
+  text-align: center;
+  padding: 32px 16px;
+  background: var(--card);
+  border: 1px dashed var(--line);
+  border-radius: 14px;
+  margin-top: 12px;
+}
+
+.empty-state b { display: block; font-size: 1.05rem; }
+.empty-state p { margin: 4px 0 14px; }
+.empty-state p:last-child { margin-bottom: 0; }
+
+
+/* ---------- 7. Sign-in card ---------- */
+
+.auth-card { max-width: 440px; margin: 12px auto 14px; }
+#auth-subtitle { margin: 2px 0 0; }
+.auth-note { margin-top: 14px; text-align: center; }
+.submit-full { width: 100%; margin-top: 18px; }
+
+/* Login / sign-up switch */
+.switch { display: flex; background: var(--bar); border-radius: 10px; padding: 3px; margin-top: 16px; }
+
+.switch button {
+  flex: 1;
+  min-height: 38px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--text);
+  font: 600 .92rem Cairo, Tahoma, sans-serif;
+  cursor: pointer;
+}
+
+.switch [aria-pressed="true"] { background: var(--card); box-shadow: 0 1px 3px rgba(0, 0, 0, .2); }
+
+/* Password strength bar and checklist */
+.meter { height: 6px; border-radius: 99px; background: var(--bar); margin-top: 10px; overflow: hidden; }
+.meter i { display: block; height: 100%; width: 0; transition: width .2s; }
+
+.password-rules {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px 12px;
+  font-size: .82rem;
+  color: var(--muted);
+}
+
+.password-rules li::before { content: "○ "; }
+.password-rules li.ok { color: var(--ok); }
+.password-rules li.ok::before { content: "✓ "; }
+
+
+/* ---------- 8. Learning resources ---------- */
+
+.breadcrumbs { margin: 0 0 4px; }
+
+.course-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  width: 100%;
+  margin: 0;
+  padding: 14px 16px;
+  text-align: start;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.link-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  padding: 14px 16px;
+  color: inherit;
+  text-decoration: none;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+
+.course-card:hover,
+.link-card:hover { border-color: var(--accent); }
+
+
+/* ---------- 9. Weekly schedule ---------- */
+
+/* Today's date bar and the today / tomorrow boxes */
+.today-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 16px 18px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+}
+
+.today-header b { display: block; font-size: 1.15rem; line-height: 1.4; }
+
+.today-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  margin-top: 12px;
+}
+
+.today-column {
+  padding: 14px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+
+.today-column h3 { margin: 0 0 2px; font-size: .95rem; }
+.today-hint { grid-column: 1 / -1; margin: 0; }
+.no-items { margin: 6px 0 0; }
+.note { margin: 12px 0 0; }
+
+/* "First day of the semester" picker */
+.semester-start { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px; margin-top: 12px; }
+.semester-start .field { flex: 1 1 220px; margin: 0; }
+
+/* Week navigation: arrows, title, and the 20 week buttons */
+.week-nav { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
+.week-nav h3 { margin: 0; }
+.week-title-box { text-align: center; }
+
+.week-chips { display: flex; gap: 6px; overflow-x: auto; padding: 12px 2px 4px; }
+
+.week-chip {
+  flex: none;
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--text);
+  font: 600 .85rem Cairo, Tahoma, sans-serif;
+  cursor: pointer;
+}
+
+/* Small dot = something is scheduled that week */
+.week-chip.has-entries::after {
+  content: "";
+  position: absolute;
+  bottom: 4px;
+  left: calc(50% - 2.5px);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.week-chip.is-now { box-shadow: inset 0 0 0 2px var(--accent); }
+.week-chip[aria-current="true"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.week-chip[aria-current="true"].has-entries::after { background: var(--on-accent); }
+
+/* The five day columns */
+.day-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 178px), 1fr));
+  margin-top: 12px;
+}
+
+.day-column {
+  min-height: 84px;
+  padding: 12px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+
+.day-column h3 { margin: 0 0 4px; font-size: .95rem; }
+.day-column h3 small { margin-inline-start: 6px; font-weight: 400; font-size: .78rem; color: var(--muted); }
+.day-column.is-today { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+
+/* One lecture / task / project inside a day */
+.entry {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: var(--bg);
+  border-radius: 8px;
+  border-inline-start: 4px solid var(--accent);
+  font-size: .9rem;
+  line-height: 1.5;
+}
+
+.entry b { overflow-wrap: anywhere; }
+.entry.project { border-color: var(--amber); }
+.entry.task { border-color: var(--muted); }
+
+/* "Add to schedule" form layout */
+.add-form-grid {
+  display: grid;
+  gap: 0 12px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+}
+
+.form-actions { margin-top: 18px; }
+
+/* Project bars across the 20 weeks */
+.timeline-bar { display: grid; grid-template-columns: repeat(20, 1fr); gap: 2px; margin: 4px 0 14px; }
+.timeline-bar i { height: 14px; border-radius: 3px; background: var(--bar); }
+.timeline-bar i.on { background: var(--amber); }
+
+
+/* ---------- 10. Toast and footer ---------- */
+
+#toast {
+  position: fixed;
+  inset-inline: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  max-width: 420px;
+  margin-inline: auto;
+  padding: 10px 16px;
+  background: var(--header);
+  color: #fff;
+  border-radius: 12px;
+  text-align: center;
+  font-size: .9rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s;
+  z-index: 20;
+}
+
+footer { max-width: 1000px; margin: 0 auto; padding: 16px 16px 28px; text-align: center; }
+
+@media (max-width: 420px) {
+  .password-rules { grid-template-columns: 1fr; }
+}
