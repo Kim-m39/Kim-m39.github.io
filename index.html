@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>رفيق المبرمج</title>
+
+  <!-- Arabic font (falls back to Tahoma if offline) -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <!-- ===== Header: site name, signed-in user, main navigation ===== -->
+  <header>
+    <div class="header-inner">
+      <div class="header-top">
+        <div class="brand">
+          رفيق المبرمج
+          <small>جامعة أم القرى · كلية الحاسبات</small>
+        </div>
+
+        <div id="user-box" hidden>
+          <span id="user-name"></span>
+          <button class="btn-ghost" onclick="logout()">تسجيل الخروج</button>
+        </div>
+      </div>
+
+      <nav id="main-nav" hidden aria-label="الأقسام">
+        <a href="#resources" data-page="resources">مصادر التعلم</a>
+        <a href="#schedule" data-page="schedule">الجدول الأسبوعي</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ===== Login / sign-up card (visible only when signed out) ===== -->
+    <section id="auth-card" class="card auth-card">
+      <h2 id="auth-title">مرحبًا بعودتك</h2>
+      <p id="auth-subtitle" class="muted">سجّل دخولك لمتابعة جدولك الأسبوعي.</p>
+
+      <div class="switch" role="group" aria-label="نوع الدخول">
+        <button id="tab-login" aria-pressed="true" onclick="setAuthMode('login')">تسجيل الدخول</button>
+        <button id="tab-signup" aria-pressed="false" onclick="setAuthMode('signup')">إنشاء حساب</button>
+      </div>
+
+      <form onsubmit="submitAuthForm(event)" novalidate>
+
+        <!-- Name (sign-up only) -->
+        <div class="field" id="name-field" hidden>
+          <label for="name-input">الاسم</label>
+          <input id="name-input" type="text" autocomplete="name" aria-describedby="name-error">
+          <p class="field-error" id="name-error"></p>
+        </div>
+
+        <!-- Email -->
+        <div class="field">
+          <label for="email-input">البريد الإلكتروني</label>
+          <input id="email-input" type="email" dir="ltr" inputmode="email" autocomplete="email"
+                 autocapitalize="off" spellcheck="false" placeholder="name@example.com"
+                 aria-describedby="email-error" onblur="checkEmailOnBlur()">
+          <p class="field-error" id="email-error"></p>
+        </div>
+
+        <!-- Password -->
+        <div class="field">
+          <label for="password-input">كلمة المرور</label>
+          <div class="password-wrap">
+            <input id="password-input" type="password" dir="ltr" autocomplete="current-password"
+                   aria-describedby="password-error" oninput="updatePasswordHelp()">
+            <button type="button" class="toggle-password" aria-pressed="false"
+                    onclick="togglePasswordVisibility(this)">إظهار</button>
+          </div>
+          <p class="field-error" id="password-error"></p>
+        </div>
+
+        <!-- Password strength + rules (sign-up only) -->
+        <div id="password-help" hidden>
+          <div class="meter" aria-hidden="true"><i id="strength-bar"></i></div>
+          <p class="hint">قوة كلمة المرور: <b id="strength-label">لم تُكتب بعد</b></p>
+          <ul class="password-rules" id="password-rules">
+            <li data-rule="length">8 أحرف على الأقل</li>
+            <li data-rule="upper">حرف إنجليزي كبير (A–Z)</li>
+            <li data-rule="lower">حرف إنجليزي صغير (a–z)</li>
+            <li data-rule="digit">رقم واحد على الأقل</li>
+            <li data-rule="symbol">رمز واحد على الأقل مثل ! @ #</li>
+          </ul>
+        </div>
+
+        <!-- Confirm password (sign-up only) -->
+        <div class="field" id="confirm-field" hidden>
+          <label for="confirm-input">تأكيد كلمة المرور</label>
+          <input id="confirm-input" type="password" dir="ltr" autocomplete="new-password"
+                 aria-describedby="confirm-error">
+          <p class="field-error" id="confirm-error"></p>
+        </div>
+
+        <p class="form-error" id="form-error" role="alert"></p>
+        <button class="btn-primary submit-full" id="submit-button" type="submit">تسجيل الدخول</button>
+      </form>
+
+      <p class="hint auth-note">نسخة تجريبية: لا يوجد تحقق بالبريد بعد، وتبقى بياناتك على هذا الجهاز.</p>
+    </section>
+
+
+    <!-- ===== The app (visible only when signed in) ===== -->
+    <div id="app" hidden>
+
+      <!-- Page 1: learning resources (filled by renderResources) -->
+      <section id="page-resources">
+        <div class="page-head">
+          <div>
+            <h2>مصادر التعلم</h2>
+            <p class="muted">اختر تخصصك ثم مستواك ثم المادة لتجد مصادر الشرح.</p>
+          </div>
+        </div>
+        <div id="resources-content"></div>
+      </section>
+
+      <!-- Page 2: weekly schedule -->
+      <section id="page-schedule" hidden>
+        <div class="page-head">
+          <div>
+            <h2>الجدول الأسبوعي</h2>
+            <p class="muted">رتّب فصلك الدراسي على 20 أسبوعًا.</p>
+          </div>
+          <div class="head-actions">
+            <!-- Changes how every time is shown and typed. Takes effect immediately. -->
+            <div class="time-switch">
+              <span class="time-switch-label">تغيير نظام الوقت</span>
+              <div class="switch compact" role="group" aria-label="تغيير نظام الوقت">
+                <button id="time-24" aria-pressed="false" onclick="setTimeFormat('24')">24 ساعة</button>
+                <button id="time-12" aria-pressed="false" onclick="setTimeFormat('12')">12 ساعة</button>
+              </div>
+            </div>
+            <button class="btn-primary" onclick="openAddPanel()">إضافة</button>
+          </div>
+        </div>
+
+        <!-- Form for adding a lecture, task or project (also used for editing one) -->
+        <form class="card" id="add-panel" onsubmit="saveEntry(event)" hidden novalidate>
+          <h3 id="panel-title">إضافة إلى الجدول</h3>
+          <!-- Shown only while editing -->
+          <fieldset class="scope" id="scope-field" hidden>
+            <legend>تطبيق التعديل على</legend>
+            <label><input type="radio" name="scope" value="one" checked onchange="updateFormFields()"> هذا الأسبوع فقط</label>
+            <label><input type="radio" name="scope" value="following" onchange="updateFormFields()"> هذا الأسبوع وكل الأسابيع التالية</label>
+            <p class="hint" id="scope-hint"></p>
+          </fieldset>
+
+          <div class="add-form-grid">
+            <div class="field">
+              <label for="event-title">العنوان</label>
+              <input id="event-title" type="text" maxlength="80">
+            </div>
+            <div class="field">
+              <label for="event-type">النوع</label>
+              <select id="event-type" onchange="onTypeChange()">
+                <option>محاضرة</option>
+                <option>مهمة</option>
+                <option>مشروع</option>
+              </select>
+            </div>
+            <!-- Attendance: shown for lectures only -->
+            <div class="field" id="mode-field">
+              <label for="event-mode">طريقة الحضور</label>
+              <select id="event-mode">
+                <option value="inperson">حضوري</option>
+                <option value="online">عن بعد (أونلاين)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="event-day">اليوم</label>
+              <select id="event-day"></select>
+            </div>
+            <div class="field">
+              <span class="field-label" id="time-label">الوقت (اختياري)</span>
+              <div class="time-field" role="group" aria-labelledby="time-label">
+                <select id="event-hour" aria-label="الساعة" onchange="updateTimeFields()"></select>
+                <span aria-hidden="true">:</span>
+                <select id="event-minute" aria-label="الدقائق"></select>
+                <!-- ص = morning, م = afternoon / evening. Hidden in 24-hour mode. -->
+                <select id="event-period" aria-label="صباحًا أو مساءً">
+                  <option value="am">ص</option>
+                  <option value="pm">م</option>
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label for="event-from" id="event-from-label">من الأسبوع</label>
+              <select id="event-from"></select>
+            </div>
+            <!-- Hidden while editing, because an edit changes one week only -->
+            <div class="field" id="event-to-field">
+              <label for="event-to">إلى الأسبوع</label>
+              <select id="event-to"></select>
+            </div>
+          </div>
+          <div class="row form-actions">
+            <button class="btn-primary" id="save-button" type="submit">إضافة</button>
+            <button class="btn-secondary" type="button" onclick="closeAddPanel()">إلغاء</button>
+          </div>
+        </form>
+
+        <!-- Today's date + what is scheduled today and tomorrow -->
+        <div class="today-header">
+          <div>
+            <span class="muted">اليوم</span>
+            <b id="today-date"></b>
+          </div>
+          <span class="pill" id="today-week" hidden></span>
+        </div>
+        <div class="today-grid" id="today-grid"></div>
+        <div id="semester-start-box"></div>
+
+        <!-- Week navigation -->
+        <div class="week-nav">
+          <button class="btn-nav" aria-label="الأسبوع السابق" onclick="goToWeek(currentWeek - 1)">→</button>
+          <div class="week-title-box">
+            <h3 id="week-title"></h3>
+            <div class="muted" id="week-range"></div>
+            <button class="btn-link" id="back-to-now" hidden onclick="goToCurrentWeek()">العودة إلى هذا الأسبوع</button>
+          </div>
+          <button class="btn-nav" aria-label="الأسبوع التالي" onclick="goToWeek(currentWeek + 1)">←</button>
+        </div>
+        <div class="week-chips" id="week-chips"></div>
+
+        <!-- The selected week, Sunday to Thursday -->
+        <div id="week-days"></div>
+
+        <!-- Long projects across all 20 weeks (shown only when a project exists) -->
+        <div class="card" id="timeline-card" hidden>
+          <h3>المشاريع الممتدة</h3>
+          <div id="timeline"></div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="muted">مشروع طلابي لطلبة كلية الحاسبات في جامعة أم القرى، وليس موقعًا رسميًا للجامعة.</footer>
+  <!-- Pop-up used for deleting and for cancelled lectures (filled in by renderDialog in app.js) -->
+  <dialog id="app-dialog" aria-labelledby="dialog-title">
+    <div class="dialog-body">
+      <h3 id="dialog-title"></h3>
+      <p class="muted" id="dialog-text"></p>
+      <p class="dialog-question" id="dialog-question" hidden></p>
+      <div class="dialog-actions" id="dialog-actions"></div>
+    </div>
+  </dialog>
+
+  <!-- Pop-up for adding or editing your own source: link or file (filled in by app.js) -->
+  <dialog id="source-dialog" aria-labelledby="source-dialog-title">
+    <div class="dialog-body" id="source-dialog-body"></div>
+  </dialog>
+
+  <!-- File viewer: shows a file you added right inside the page (filled in by js/07-file-viewer.js) -->
+  <dialog id="viewer-dialog" class="viewer" aria-labelledby="viewer-title">
+    <div class="viewer-head">
+      <h3 id="viewer-title"></h3>
+      <div class="viewer-buttons">
+        <button class="btn-mini" onclick="openViewerInNewWindow()">فتح في نافذة جديدة</button>
+        <button class="btn-mini" autofocus onclick="closeViewer()">إغلاق</button>
+      </div>
+    </div>
+    <div class="viewer-content" id="viewer-content"></div>
+  </dialog>
+
+  <div id="toast" role="status"></div>
+
+  <!-- The code, in the order it loads. Each file starts with a short description of what it holds. -->
+  <script src="js/01-helpers.js"></script>
+  <script src="js/02-data.js"></script>
+  <script src="js/03-state.js"></script>
+  <script src="js/04-navigation.js"></script>
+  <script src="js/05-accounts.js"></script>
+  <script src="js/06-resources.js"></script>
+  <script src="js/07-file-viewer.js"></script>
+  <script src="js/08-schedule-entries.js"></script>
+  <script src="js/09-schedule-view.js"></script>
+  <script src="js/10-schedule-form.js"></script>
+  <script src="js/11-dialog.js"></script>
+  <script src="js/12-schedule-actions.js"></script>
+  <script src="js/13-start.js"></script>
+</body>
+</html>
